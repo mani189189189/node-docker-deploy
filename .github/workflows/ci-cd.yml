@@ -1,6 +1,5 @@
 name: CI/CD Deploy to Docker Host
 
-
 on:
   push:
     branches: [main]
