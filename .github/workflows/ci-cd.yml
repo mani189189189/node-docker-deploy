@@ -26,8 +26,8 @@ jobs:
       - name: Build Docker image
         run: docker build -t my-node-app .
 
-#      - name: Save Docker image as tar file
-#        run: docker save my-node-app -o my-node-app.tar
+      - name: Save Docker image as tar file
+        run: docker save my-node-app -o my-node-app.tar
 
       - name: Copy image to remote server
         uses: appleboy/scp-action@v0.1.7
@@ -35,7 +35,7 @@ jobs:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "my-node-app"
+          source: "my-node-app.tar"
           target: "~/"
 
       - name: SSH to deploy container
