@@ -1,0 +1,51 @@
+name: CI/CD Deploy to Docker Host
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build Docker image
+        run: docker build -t my-node-app .
+
+      - name: Save Docker image as tar file
+        run: docker save my-node-app -o my-node-app.tar
+
+      - name: Copy image to remote server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "my-node-app.tar"
+          target: "~/"
+
+      - name: SSH to deploy container
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            docker load -i ~/my-node-app.tar
+            docker stop my-node-app || true && docker rm my-node-app || true
+            docker run -d -p 80:3000 --name my-node-app my-node-app
+
