@@ -35,7 +35,7 @@ jobs:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "my-node-app.tar"
+          source: "my-node-app"
           target: "~/"
 
       - name: SSH to deploy container
